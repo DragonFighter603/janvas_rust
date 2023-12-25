@@ -64,7 +64,7 @@
             if(/^onkey/.test(key)) {
                 const eventType = key.substr(2);
                 if(eventType != 'contextmenu') {
-                    canvas.addEventListener(eventType, handler)
+                    window.addEventListener(eventType, handler)
                 }
             }
         }
