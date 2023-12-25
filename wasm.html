@@ -25,13 +25,13 @@
     import init_wasm, { create, init_panic, render, update, event } from "./wasm/{{ wasm }}"
 
     async function run() {
-        canvas.width = window.innerWidth
-        canvas.height = window.innerHeight
-            
         let _wasm = await init_wasm()
 
         let canvas = document.getElementById("canvas")
         let ctx = canvas.getContext("2d")
+        
+        canvas.width = window.innerWidth
+        canvas.height = window.innerHeight
 
         init_panic()
 
