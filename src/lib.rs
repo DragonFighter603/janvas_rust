@@ -36,8 +36,7 @@ macro_rules! js_field {
 }
 
 pub trait JsGame {
-    fn create() -> Self;
-    fn init(&mut self, context: CanvasContext);
+    fn create(context: CanvasContext) -> Self;
     fn update(&mut self, context: CanvasContext);
     fn render(&mut self, canvas: &CanvasRenderingContext2d, context: CanvasContext);
     fn event(&mut self, event: &JsValue, context: CanvasContext) where Self: JsInputHandler {
@@ -155,13 +154,8 @@ macro_rules! create_game {
         use $crate::wasm_bindgen::prelude::wasm_bindgen;
 
         #[wasm_bindgen]
-        pub fn create() -> $game {
-            $game::create()
-        }
-
-        #[wasm_bindgen]
-        pub fn init(game: &mut $game, width: u32, height: u32, time: f64) {
-            game.init($crate::CanvasContext { width, height, time, time_delta: 1.0 } );
+        pub fn create(game: &mut $game, width: u32, height: u32, time: f64) -> $game {
+            $game::create($crate::CanvasContext { width, height, time, time_delta: 1.0 } )
         }
 
         #[wasm_bindgen]

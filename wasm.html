@@ -32,9 +32,7 @@
 
         init_panic()
 
-        let game = create()
-
-        init(game, window.innerWidth, window.innerHeight, 0)
+        let game = create(window.innerWidth, window.innerHeight, 0)
 
         let start = new Date().getTime()
         let last_time = 0
