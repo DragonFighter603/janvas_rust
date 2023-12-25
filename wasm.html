@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>{{ title }}</title>
-    <meta name="description" content="DragonFighter603's projects">
+    <meta name="description" content="Sandbox by dragoπ">
     <style>
         body {
             position: absolute;
@@ -27,13 +27,8 @@
     async function run() {
         let _wasm = await init_wasm()
 
-        let canvas = document.getElementById('canvas')
-        let ctx = canvas.getContext('2d')
-
-        window.addEventListener('contextmenu', function(ev) {
-            ev.preventDefault()
-            return false
-        }, false)
+        let canvas = document.getElementById("canvas")
+        let ctx = canvas.getContext("2d")
 
         init_panic()
 
@@ -47,29 +42,32 @@
         let time_delta = time - last_time
 
         let handler = (e) => {
-            console.log(e)
+            e.preventDefault()
             event(game, e, window.innerWidth, window.innerHeight, time, time_delta)
-        }
+            return false
+        };
 
         for (const key in canvas) {
             if(/^on/.test(key) && !/^onkey/.test(key)) {
                 const eventType = key.substr(2);
-                if(eventType != 'contextmenu') {
-                    canvas.addEventListener(eventType, handler)
+                if(eventType != "contextmenu") {
+                    canvas.addEventListener(eventType, handler, false)
                 }
             }
         }
 
         for (const key in window) {
+            const eventType = key.substr(2);
             if(/^onkey/.test(key)) {
-                const eventType = key.substr(2);
-                if(eventType != 'contextmenu') {
-                    window.addEventListener(eventType, handler)
-                }
+                window.addEventListener(eventType, handler, false)
+            } else {
+                window.addEventListener(eventType, (e) => {
+                    if(eventType != "wheel") e.preventDefault()
+                    return false
+                }, false)
             }
         }
 
-        init(game, window.innerWidth, window.innerHeight, 0)
         const loop = (timestamp) => {
             time = new Date().getTime() - start
             time_delta = time - last_time

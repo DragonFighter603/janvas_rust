@@ -13,6 +13,10 @@ macro_rules! log {
 
 #[macro_export]
 macro_rules! js_field {
+    ($object: expr $(=> $fields: ident)+ as String) => {
+        js_field!($object $(=> $fields)+).as_string().unwrap()
+    };
+
     ($object: expr $(=> $fields: ident)+ as $t: ty) => {
         //$crate::serde_wasm_bindgen::from_value::<$t>(js_field!($object $(=> $fields)+)).unwrap()
         js_field!($object $(=> $fields)+).as_f64().unwrap() as $t
@@ -69,15 +73,46 @@ impl MouseData {
         }
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct KeyData {
+    pub alt: bool,
+    pub shift: bool,
+    pub ctrl: bool,
+    pub meta: bool,
+    pub key: String,
+    pub code: String,
+    pub keycode: u8,
+}
+
+impl KeyData {
+    fn from_event(event: &JsValue) -> KeyData {
+        KeyData {
+            alt: js_field!(event => altKey as bool),
+            shift: js_field!(event => shiftKey as bool),
+            ctrl: js_field!(event => ctrlKey as bool),
+            meta: js_field!(event => metaKey as bool),
+            key: js_field!(event => key as String),
+            code: js_field!(event => code as String),
+            keycode: js_field!(event => keyCode as u8),
+        }
+    }
+}
+
 #[allow(unused_variables)]
 pub trait JsInputHandler {
     fn handle(&mut self, event: &JsValue, context: CanvasContext) -> bool {
-        let event_id = js_field!(event => type).as_string().unwrap();
+        let event_id = js_field!(event => type as String);
         if !match event_id.as_str() {
             "pointerdown" => self.pointerdown(MouseData::from_event(event), context.clone()),
             "pointerup" => self.pointerup(MouseData::from_event(event), context.clone()),
             "wheel" => self.wheel(MouseData::from_event(event), context.clone()),
             "pointermove" => self.pointermove(MouseData::from_event(event), context.clone()),
+            "mouseleave" => self.mouseleave(MouseData::from_event(event), context.clone()),
+            "mouseenter" => self.mouseenter(MouseData::from_event(event), context.clone()),
+            "keydown" => self.keydown(KeyData::from_event(event), context),
+            "keypress" => self.keypress(KeyData::from_event(event), context),
+            "keyup" => self.keyup(KeyData::from_event(event), context),
             event_id => false
         } {
             self.default_event(event_id.as_str(), event, context)
@@ -90,6 +125,13 @@ pub trait JsInputHandler {
     fn pointerup(&mut self, mouse: MouseData, context: CanvasContext) -> bool { false }
     fn wheel(&mut self, mouse: MouseData, context: CanvasContext) -> bool { false }
     fn pointermove(&mut self, mouse: MouseData, context: CanvasContext) -> bool { false }
+
+    fn mouseleave(&mut self, mouse: MouseData, context: CanvasContext) -> bool { false }
+    fn mouseenter(&mut self, mouse: MouseData, context: CanvasContext) -> bool { false }
+
+    fn keydown(&mut self, key: KeyData, context: CanvasContext) -> bool { false }
+    fn keypress(&mut self, key: KeyData, context: CanvasContext) -> bool { false }
+    fn keyup(&mut self, key: KeyData, context: CanvasContext) -> bool { false }
 
     fn default_event(&mut self, event_id: &str, event: &JsValue, context: CanvasContext) -> bool { false }
 }
