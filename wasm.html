@@ -58,6 +58,7 @@
 
         for (const key in window) {
             const eventType = key.substr(2);
+            if(eventType == "beforeunload") continue
             if(/^onkey/.test(key)) {
                 window.addEventListener(eventType, handler, false)
             } else {
