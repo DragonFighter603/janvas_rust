@@ -18,7 +18,7 @@ macro_rules! js_field {
     };
 
     ($object: expr $(=> $fields: ident)+ as bool) => {
-        js_field!($object $(=> $fields)+).as_f64().unwrap() != 0
+        js_field!($object $(=> $fields)+).as_f64().unwrap() != 0.0
     };
 
     ($object: expr $(=> $fields: ident)+ as $t: ty) => {
