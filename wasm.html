@@ -32,7 +32,7 @@
 
         init_panic()
 
-        let game = create(window.innerWidth, window.innerHeight, 0)
+        let game = create(canvas.width, canvas.height, 0)
 
         let start = new Date().getTime()
         let last_time = 0
@@ -41,7 +41,7 @@
 
         let handler = (e) => {
             e.preventDefault()
-            event(game, e, window.innerWidth, window.innerHeight, time, time_delta)
+            event(game, e, canvas.width, canvas.height, time, time_delta)
             return false
         };
 
@@ -70,10 +70,8 @@
         const loop = (timestamp) => {
             time = new Date().getTime() - start
             time_delta = time - last_time
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            update(game, window.innerWidth, window.innerHeight, time, time_delta)
-            render(game, ctx, window.innerWidth, window.innerHeight, time, time_delta)
+            update(game, canvas.width, canvas.height, time, time_delta)
+            render(game, ctx, canvas.width, canvas.height, time, time_delta)
             requestAnimationFrame(loop)
             last_time = time
         }
