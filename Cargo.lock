@@ -19,6 +19,7 @@ name = "janvas_rust"
 version = "0.1.0"
 dependencies = [
  "cfg-if",
+ "js-sys",
  "web-sys",
 ]
 
