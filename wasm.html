@@ -22,7 +22,7 @@
 <body>
 <canvas id="canvas" style="width: 100%; height: 100%"></canvas>
 <script type="module">
-    import init, { create, init, render, update, event } from "./wasm/{{ wasm }}"
+    import init, { create, init, init_panic, render, update, event } from "./wasm/{{ wasm }}"
 
     async function run() {
         let _wasm = await init()
@@ -30,27 +30,35 @@
         let canvas = document.getElementById('canvas')
         let ctx = canvas.getContext('2d')
 
-        for (const key in canvas) {
-            if(/^on/.test(key)) {
-                const eventType = key.substr(2);
-                canvas.addEventListener(eventType, (event) => event(event));
-            }
-        }
-
         window.addEventListener('contextmenu', function(ev) {
             ev.preventDefault()
             return false
         }, false)
 
+        init_panic()
+
         let game = create()
 
-        let start = null
-        let last_time = null
+        init(game, window.innerWidth, window.innerHeight, 0)
+
+        let start = new Date().getTime()
+        let last_time = 0
+        let time = 0
+        let time_delta = time - last_time
+
+        for (const key in canvas) {
+            if(/^on/.test(key)) {
+                const eventType = key.substr(2);
+                if(eventType != 'contextmenu') {
+                    canvas.addEventListener(eventType, (event) => event(game, event, window.innerWidth, window.innerHeight, time, time_delta))
+                }
+            }
+        }
+
         init_game(game)
         const loop = (timestamp) => {
-            if (start === null) start = timestamp
-            let time = timestamp - start
-            let time_delta = time - last_time
+            time = new Date().getTime() - start
+            time_delta = time - last_time
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             update(game, window.innerWidth, window.innerHeight, time, time_delta)
