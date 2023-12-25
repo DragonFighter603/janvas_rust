@@ -31,7 +31,7 @@ pub trait JsGame {
     fn event(&mut self, event: &JsValue);
 }
 
-pub trait InputHandler {
+pub trait JsInputHandler {
     fn handle(&mut self, event: &JsValue) -> bool {
         match js_field!(event => type).as_string().unwrap().as_str() {
             event_id => self.default(event_id, event)
