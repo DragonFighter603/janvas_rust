@@ -14,7 +14,8 @@ macro_rules! log {
 #[macro_export]
 macro_rules! js_field {
     ($object: expr $(=> $fields: ident)+ as $t: ty) => {
-        $crate::serde_wasm_bindgen::from_value::<$t>(js_field!($object $(=> $fields)+)).unwrap()
+        //$crate::serde_wasm_bindgen::from_value::<$t>(js_field!($object $(=> $fields)+)).unwrap()
+        js_field!($object $(=> $fields)+).as_f64().unwrap() as $t
     };
 
     ($object: expr => $field: ident $(=> $fields: ident)+) => {
@@ -36,6 +37,7 @@ pub trait JsGame {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct MouseData {
     button: u8,
     buttons: u8,
@@ -62,10 +64,10 @@ pub trait JsInputHandler {
     fn handle(&mut self, event: &JsValue, context: CanvasContext) -> bool {
         let event_id = js_field!(event => type).as_string().unwrap();
         if !match event_id.as_str() {
-            "pointerdown" => self.pointerdown(MouseData::from_event(event), context),
-            "pointerup" => self.pointerup(MouseData::from_event(event), context),
-            "wheel" => self.wheel(MouseData::from_event(event), context),
-            "pointermove" => self.pointermove(MouseData::from_event(event), context),
+            "pointerdown" => self.pointerdown(MouseData::from_event(event), context.clone()),
+            "pointerup" => self.pointerup(MouseData::from_event(event), context.clone()),
+            "wheel" => self.wheel(MouseData::from_event(event), context.clone()),
+            "pointermove" => self.pointermove(MouseData::from_event(event), context.clone()),
             event_id => false
         } {
             self.default_event(event_id.as_str(), event, context)
@@ -82,7 +84,7 @@ pub trait JsInputHandler {
     fn default_event(&mut self, event_id: &str, event: &JsValue, context: CanvasContext) -> bool { false }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct CanvasContext {
     pub width: u32,
     pub height: u32,
