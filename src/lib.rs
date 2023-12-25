@@ -52,10 +52,10 @@ pub struct MouseData {
     pub y: i32,
     pub dx: i32,
     pub dy: i32,
-    pub alt: bool,
-    pub shift: bool,
-    pub ctrl: bool,
-    pub meta: bool,
+    //pub alt: bool,
+    //pub shift: bool,
+    //pub ctrl: bool,
+    //pub meta: bool,
     pub primary: bool
 }
 
@@ -68,10 +68,10 @@ impl MouseData {
             y: js_field!(event => offsetY as i32),
             dx: js_field!(event => movementX as i32),
             dy: js_field!(event => movementY as i32),
-            alt: js_field!(event => altKey as bool),
-            shift: js_field!(event => shiftKey as bool),
-            ctrl: js_field!(event => ctrlKey as bool),
-            meta: js_field!(event => metaKey as bool),
+            //alt: js_field!(event => altKey as bool),
+            //shift: js_field!(event => shiftKey as bool),
+            //ctrl: js_field!(event => ctrlKey as bool),
+            //meta: js_field!(event => metaKey as bool),
             primary: js_field!(event => isPrimary as bool)
         }
     }
