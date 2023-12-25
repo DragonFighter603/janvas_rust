@@ -2,6 +2,7 @@ use web_sys::{wasm_bindgen::JsValue, CanvasRenderingContext2d};
 
 pub use console_error_panic_hook;
 pub use wasm_bindgen;
+pub use serde_wasm_bindgen;
 
 #[macro_export]
 macro_rules! log {
@@ -12,12 +13,16 @@ macro_rules! log {
 
 #[macro_export]
 macro_rules! js_field {
+    ($object: expr $(=> $fields: ident)+ as $t: ty) => {
+        $crate::serde_wasm_bindgen::from_value::<$t>(js_field!($object $(=> $fields)+)).unwrap()
+    };
+
     ($object: expr => $field: ident $(=> $fields: ident)+) => {
-        js_field!(js_sys::Reflect::get($object, &JsValue::from_str( stringify!($field) )).unwrap() $(=> $fields)+);
+        js_field!(js_sys::Reflect::get($object, &JsValue::from_str( stringify!($field) )).unwrap() $(=> $fields)+)
     };
 
     ($object: expr => $field: ident) => {
-        js_sys::Reflect::get($object, &JsValue::from_str( stringify!($field) )).unwrap();
+        js_sys::Reflect::get($object, &JsValue::from_str( stringify!($field) )).unwrap()
     };
 }
 
@@ -31,18 +36,53 @@ pub trait JsGame {
     }
 }
 
+pub struct MouseData {
+    button: u8,
+    buttons: u8,
+    x: i32,
+    y: i32,
+    dx: i32,
+    dy: i32
+}
+
+impl MouseData {
+    fn from_event(event: &JsValue) -> MouseData {
+        MouseData {
+            button: js_field!(event => button as u8),
+            buttons: js_field!(event => buttons as u8),
+            x: js_field!(event => offsetX as i32),
+            y: js_field!(event => offsetY as i32),
+            dx: js_field!(event => movementX as i32),
+            dy: js_field!(event => movementY as i32),
+        }
+    }
+}
+#[allow(unused_variables)]
 pub trait JsInputHandler {
     fn handle(&mut self, event: &JsValue, context: CanvasContext) -> bool {
-        match js_field!(event => type).as_string().unwrap().as_str() {
-            event_id => self.default(event_id, event, context)
+        let event_id = js_field!(event => type).as_string().unwrap();
+        if !match event_id.as_str() {
+            "pointerdown" => self.pointerdown(MouseData::from_event(event), context),
+            "pointerup" => self.pointerup(MouseData::from_event(event), context),
+            "wheel" => self.wheel(MouseData::from_event(event), context),
+            "pointermove" => self.pointermove(MouseData::from_event(event), context),
+            event_id => false
+        } {
+            self.default_event(event_id.as_str(), event, context)
+        } else {
+            true
         }
     }
 
-    fn default(&mut self, event_id: &str, event: &JsValue, context: CanvasContext) -> bool {
-        false
-    }
+    fn pointerdown(&mut self, mouse: MouseData, context: CanvasContext) -> bool { false }
+    fn pointerup(&mut self, mouse: MouseData, context: CanvasContext) -> bool { false }
+    fn wheel(&mut self, mouse: MouseData, context: CanvasContext) -> bool { false }
+    fn pointermove(&mut self, mouse: MouseData, context: CanvasContext) -> bool { false }
+
+    fn default_event(&mut self, event_id: &str, event: &JsValue, context: CanvasContext) -> bool { false }
 }
 
+#[derive(Clone, Copy)]
 pub struct CanvasContext {
     pub width: u32,
     pub height: u32,
