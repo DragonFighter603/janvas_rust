@@ -17,6 +17,10 @@ macro_rules! js_field {
         js_field!($object $(=> $fields)+).as_string().unwrap()
     };
 
+    ($object: expr $(=> $fields: ident)+ as bool) => {
+        js_field!($object $(=> $fields)+).as_f64().unwrap() != 0
+    };
+
     ($object: expr $(=> $fields: ident)+ as $t: ty) => {
         //$crate::serde_wasm_bindgen::from_value::<$t>(js_field!($object $(=> $fields)+)).unwrap()
         js_field!($object $(=> $fields)+).as_f64().unwrap() as $t
