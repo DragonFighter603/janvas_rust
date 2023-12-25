@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ title }}</title>
+    <meta name="description" content="DragonFighter603's projects">
+    <style>
+        body {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas" style="width: 100%; height: 100%"></canvas>
+<script type="module">
+    import init, { create, init, render, update, event } from "./wasm/{{ wasm }}"
+
+    async function run() {
+        let _wasm = await init()
+
+        let canvas = document.getElementById('canvas')
+        let ctx = canvas.getContext('2d')
+
+        for (const key in canvas) {
+            if(/^on/.test(key)) {
+                const eventType = key.substr(2);
+                canvas.addEventListener(eventType, (event) => event(event));
+            }
+        }
+
+        window.addEventListener('contextmenu', function(ev) {
+            ev.preventDefault()
+            return false
+        }, false)
+
+        let game = create()
+
+        let start = null
+        let last_time = null
+        init_game(game)
+        const loop = (timestamp) => {
+            if (start === null) start = timestamp
+            let time = timestamp - start
+            let time_delta = time - last_time
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            update(game, window.innerWidth, window.innerHeight, time, time_delta)
+            render(game, ctx, window.innerWidth, window.innerHeight, time, time_delta)
+            requestAnimationFrame(loop)
+            last_time = time
+        }
+
+        requestAnimationFrame(loop)
+    }
+    run()
+</script>
+</body>
+</html>

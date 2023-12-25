@@ -1,0 +1,8 @@
+[package]
+name = "janvas_rust"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cfg-if = "1.0.0"
+web-sys = { version="0.3.60", features=["console", "CanvasRenderingContext2d"] }
