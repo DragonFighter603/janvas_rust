@@ -49,10 +49,10 @@
         let handler = (e) => {
             console.log(e)
             event(game, e, window.innerWidth, window.innerHeight, time, time_delta)
-        };
+        }
 
         for (const key in canvas) {
-            if(/^on/.test(key) && !/^onKey/.test(key)) {
+            if(/^on/.test(key) && !/^onkey/.test(key)) {
                 const eventType = key.substr(2);
                 if(eventType != 'contextmenu') {
                     canvas.addEventListener(eventType, handler)
@@ -61,7 +61,7 @@
         }
 
         for (const key in window) {
-            if(/^onKey/.test(key)) {
+            if(/^onkey/.test(key)) {
                 const eventType = key.substr(2);
                 if(eventType != 'contextmenu') {
                     canvas.addEventListener(eventType, handler)

@@ -39,12 +39,17 @@ pub trait JsGame {
 
 #[derive(Debug, Clone)]
 pub struct MouseData {
-    button: u8,
-    buttons: u8,
-    x: i32,
-    y: i32,
-    dx: i32,
-    dy: i32
+    pub button: u8,
+    pub buttons: u8,
+    pub x: i32,
+    pub y: i32,
+    pub dx: i32,
+    pub dy: i32,
+    pub alt: bool,
+    pub shift: bool,
+    pub ctrl: bool,
+    pub meta: bool,
+    pub primary: bool
 }
 
 impl MouseData {
@@ -56,6 +61,11 @@ impl MouseData {
             y: js_field!(event => offsetY as i32),
             dx: js_field!(event => movementX as i32),
             dy: js_field!(event => movementY as i32),
+            alt: js_field!(event => altKey as bool),
+            shift: js_field!(event => shiftKey as bool),
+            ctrl: js_field!(event => ctrlKey as bool),
+            meta: js_field!(event => metaKey as bool),
+            primary: js_field!(event => isPrimary as bool)
         }
     }
 }
