@@ -114,9 +114,9 @@ pub trait JsInputHandler {
             "pointermove" => self.pointermove(MouseData::from_event(event), context.clone()),
             "mouseleave" => self.mouseleave(MouseData::from_event(event), context.clone()),
             "mouseenter" => self.mouseenter(MouseData::from_event(event), context.clone()),
-            "keydown" => self.keydown(KeyData::from_event(event), context),
-            "keypress" => self.keypress(KeyData::from_event(event), context),
-            "keyup" => self.keyup(KeyData::from_event(event), context),
+            "keydown" => self.keydown(KeyData::from_event(event), context.clone()),
+            "keypress" => self.keypress(KeyData::from_event(event), context.clone()),
+            "keyup" => self.keyup(KeyData::from_event(event), context.clone()),
             event_id => false
         } {
             self.default_event(event_id.as_str(), event, context)
