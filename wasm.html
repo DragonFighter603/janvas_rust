@@ -43,6 +43,9 @@
         let time_delta = time - last_time
 
         let handler = (e) => {
+            if (e instanceof KeyboardEvent && e.key == "F12"){
+                return true
+            }
             e.preventDefault()
             event(game, e, canvas.width, canvas.height, time, time_delta)
             return false
