@@ -27,11 +27,11 @@ macro_rules! js_field {
     };
 
     ($object: expr => $field: ident $(=> $fields: ident)+) => {
-        js_field!(js_sys::Reflect::get($object, &JsValue::from_str( stringify!($field) )).unwrap() $(=> $fields)+)
+        js_field!(js_sys::Reflect::get($object, &$crate::wasm_bindgen::JsValue::from_str( stringify!($field) )).unwrap() $(=> $fields)+)
     };
 
     ($object: expr => $field: ident) => {
-        js_sys::Reflect::get($object, &JsValue::from_str( stringify!($field) )).unwrap()
+        js_sys::Reflect::get($object, &$crate::wasm_bindgen::JsValue::from_str( stringify!($field) )).unwrap()
     };
 }
 
