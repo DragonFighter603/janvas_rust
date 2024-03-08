@@ -13,17 +13,17 @@ macro_rules! log {
 
 #[macro_export]
 macro_rules! js_field {
-    ($object: expr $(=> $fields: ident)+ as String) => {
-        js_field!($object $(=> $fields)+).as_string().unwrap()
+    ($object: expr $(?)? $(=> $fields: ident)+ as String) => {
+        js_field!($object $(?)? $(=> $fields)+).as_string().unwrap()
     };
 
-    ($object: expr $(=> $fields: ident)+ as bool) => {
-        js_field!($object $(=> $fields)+).as_f64().unwrap() != 0.0
+    ($object: expr $(?)? $(=> $fields: ident)+ as bool) => {
+        js_field!($object $(?)? $(=> $fields)+).as_f64().unwrap() != 0.0
     };
 
-    ($object: expr $(=> $fields: ident)+ as $t: ty) => {
+    ($object: expr $(?)? $(=> $fields: ident)+ as $t: ty) => {
         //$crate::serde_wasm_bindgen::from_value::<$t>(js_field!($object $(=> $fields)+)).unwrap()
-        js_field!($object $(=> $fields)+).as_f64().unwrap() as $t
+        js_field!($object $(?)? $(=> $fields)+).as_f64().unwrap() as $t
     };
 
     ($object: expr => $field: ident $(=> $fields: ident)+) => {
@@ -32,6 +32,14 @@ macro_rules! js_field {
 
     ($object: expr => $field: ident) => {
         js_sys::Reflect::get($object, &$crate::wasm_bindgen::JsValue::from_str( stringify!($field) )).unwrap()
+    };
+    
+    ($object: expr => ? $field: ident $(=> $fields: ident)+) => {
+        js_field!(js_sys::Reflect::get($object, &$crate::wasm_bindgen::JsValue::from_str( stringify!($field) )).map(|v| v $(=> $fields)+))
+    };
+
+    ($object: expr => ? $field: ident) => {
+        js_sys::Reflect::get($object, &$crate::wasm_bindgen::JsValue::from_str( stringify!($field) ))
     };
 }
 
@@ -52,10 +60,10 @@ pub struct MouseData {
     pub y: i32,
     pub dx: i32,
     pub dy: i32,
-    //pub alt: bool,
-    //pub shift: bool,
-    //pub ctrl: bool,
-    //pub meta: bool,
+    pub alt: bool,
+    pub shift: bool,
+    pub ctrl: bool,
+    pub meta: bool,
     pub primary: bool
 }
 
@@ -68,11 +76,11 @@ impl MouseData {
             y: js_field!(event => offsetY as i32),
             dx: js_field!(event => movementX as i32),
             dy: js_field!(event => movementY as i32),
-            //alt: js_field!(event => altKey as bool),
-            //shift: js_field!(event => shiftKey as bool),
-            //ctrl: js_field!(event => ctrlKey as bool),
-            //meta: js_field!(event => metaKey as bool),
-            primary: js_field!(event => isPrimary as bool)
+            alt: js_field!(event => altKey ? as bool),
+            shift: js_field!(event => shiftKey ? as bool),
+            ctrl: js_field!(event => ctrlKey ? as bool),
+            meta: js_field!(event => metaKey ? as bool),
+            primary: js_field!(event => isPrimary ? as bool)
         }
     }
 }
