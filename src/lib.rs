@@ -150,31 +150,29 @@ pub struct CanvasContext {
 #[macro_export]
 macro_rules! create_game {
     ($game: ident) => {
-        use $crate::wasm_bindgen;
-        use $crate::wasm_bindgen::prelude::wasm_bindgen;
-
-        #[wasm_bindgen]
+        #[$crate::wasm_bindgen::prelude::wasm_bindgen]
         pub fn create(width: u32, height: u32, time: f64) -> $game {
             $game::create($crate::CanvasContext { width, height, time, time_delta: 1.0 } )
         }
 
-        #[wasm_bindgen]
+        #[$crate::wasm_bindgen::prelude::wasm_bindgen]
         pub fn render(game: &mut $game, canvas: &web_sys::CanvasRenderingContext2d, width: u32, height: u32, time: f64, time_delta: f64) {
             game.render(canvas, $crate::CanvasContext { width, height, time, time_delta });
         }
 
-        #[wasm_bindgen]
+        #[$crate::wasm_bindgen::prelude::wasm_bindgen]
         pub fn update(game: &mut $game, width: u32, height: u32, time: f64, time_delta: f64) {
             game.update($crate::CanvasContext { width, height, time, time_delta: f64::min(time_delta, 100.0) });
         }
 
-        #[wasm_bindgen]
-        pub fn event(game: &mut $game, event: &JsValue, width: u32, height: u32, time: f64, time_delta: f64) {
+        #[$crate::wasm_bindgen::prelude::wasm_bindgen]
+        pub fn event(game: &mut $game, event: &$crate::wasm_bindgen::JsValue, width: u32, height: u32, time: f64, time_delta: f64) {
             game.event(event, $crate::CanvasContext { width, height, time, time_delta: f64::min(time_delta, 100.0) });
         }
 
         pub use $crate::console_error_panic_hook::set_once as set_panic_hook;
-        #[wasm_bindgen]
+
+        #[$crate::wasm_bindgen::prelude::wasm_bindgen]
         pub fn init_panic(){
             std::panic::set_hook(Box::new($crate::console_error_panic_hook::hook));
         }
