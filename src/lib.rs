@@ -13,33 +13,24 @@ macro_rules! log {
 
 #[macro_export]
 macro_rules! js_field {
-    ($object: expr $(=> $fields: ident $(?)?)+ as String) => {
-        js_field!($object $(=> $fields $(?)?)+).as_string().unwrap()
+    ($object: expr $(=> $fields: ident)+ as String) => {
+        js_field!($object $(=> $fields)+).map(|v| v.as_string()).flatten()
     };
 
-    ($object: expr $(=> $fields: ident $(?)?)+ as bool) => {
-        js_field!($object $(=> $fields $(?)?)+).as_f64().unwrap() != 0.0
+    ($object: expr $(=> $fields: ident)+ as bool) => {
+        js_field!($object $(=> $fields)+).map(|v| v.as_f64().map(|v| v != 0.0)).flatten()
     };
 
-    ($object: expr $(=> $fields: ident $(?)?)+ as $t: ty) => {
-        //$crate::serde_wasm_bindgen::from_value::<$t>(js_field!($object $(=> $fields)+)).unwrap()
-        js_field!($object  $(=> $fields $(?)?)+).as_f64().unwrap() as $t
+    ($object: expr $(=> $fields: ident)+ as $t: ty) => {
+        js_field!($object  $(=> $fields)+).map(|v| v.as_f64().map(|v| v as $t)).flatten()
     };
 
     ($object: expr => $field: ident $(=> $fields: ident)+) => {
-        js_field!(js_sys::Reflect::get($object, &$crate::wasm_bindgen::JsValue::from_str( stringify!($field) )).unwrap() $(=> $fields)+)
+        js_sys::Reflect::get($object, &$crate::wasm_bindgen::JsValue::from_str( stringify!($field) )).ok().map(|v|js_field!(v $(=> $fields)+)).flatten()
     };
 
     ($object: expr => $field: ident) => {
-        js_sys::Reflect::get($object, &$crate::wasm_bindgen::JsValue::from_str( stringify!($field) )).unwrap()
-    };
-    
-    ($object: expr => $field: ident ? $(=> $fields: ident $(?)?)+) => {
-        js_field!(js_sys::Reflect::get($object, &$crate::wasm_bindgen::JsValue::from_str( stringify!($field) )).map(|v| v $(=> $fields $(?)?)+))
-    };
-
-    ($object: expr => $field: ident ?) => {
-        js_sys::Reflect::get($object, &$crate::wasm_bindgen::JsValue::from_str( stringify!($field) ))
+        js_sys::Reflect::get($object, &$crate::wasm_bindgen::JsValue::from_str( stringify!($field) )).ok()
     };
 }
 
@@ -70,17 +61,17 @@ pub struct MouseData {
 impl MouseData {
     fn from_event(event: &JsValue) -> MouseData {
         MouseData {
-            button: js_field!(event => button as u8),
-            buttons: js_field!(event => buttons as u8),
-            x: js_field!(event => offsetX as i32),
-            y: js_field!(event => offsetY as i32),
-            dx: js_field!(event => movementX as i32),
-            dy: js_field!(event => movementY as i32),
-            alt: js_field!(event => altKey ? as bool),
-            shift: js_field!(event => shiftKey ? as bool),
-            ctrl: js_field!(event => ctrlKey ? as bool),
-            meta: js_field!(event => metaKey ? as bool),
-            primary: js_field!(event => isPrimary ? as bool)
+            button: js_field!(event => button as u8).unwrap(),
+            buttons: js_field!(event => buttons as u8).unwrap(),
+            x: js_field!(event => offsetX as i32).unwrap(),
+            y: js_field!(event => offsetY as i32).unwrap(),
+            dx: js_field!(event => movementX as i32).unwrap(),
+            dy: js_field!(event => movementY as i32).unwrap(),
+            alt: js_field!(event => altKey as bool),
+            shift: js_field!(event => shiftKey as bool),
+            ctrl: js_field!(event => ctrlKey as bool),
+            meta: js_field!(event => metaKey as bool),
+            primary: js_field!(event => isPrimary as bool)
         }
     }
 }
@@ -99,13 +90,13 @@ pub struct KeyData {
 impl KeyData {
     fn from_event(event: &JsValue) -> KeyData {
         KeyData {
-            alt: js_field!(event => altKey as bool),
-            shift: js_field!(event => shiftKey as bool),
-            ctrl: js_field!(event => ctrlKey as bool),
-            meta: js_field!(event => metaKey as bool),
-            key: js_field!(event => key as String),
-            code: js_field!(event => code as String),
-            keycode: js_field!(event => keyCode as u8),
+            alt: js_field!(event => altKey as bool).unwrap(),
+            shift: js_field!(event => shiftKey as bool).unwrap(),
+            ctrl: js_field!(event => ctrlKey as bool).unwrap(),
+            meta: js_field!(event => metaKey as bool).unwrap(),
+            key: js_field!(event => key as String).unwrap(),
+            code: js_field!(event => code as String).unwrap(),
+            keycode: js_field!(event => keyCode as u8).unwrap(),
         }
     }
 }
@@ -113,7 +104,7 @@ impl KeyData {
 #[allow(unused_variables)]
 pub trait JsInputHandler {
     fn handle(&mut self, event: &JsValue, context: CanvasContext) -> bool {
-        let event_id = js_field!(event => type as String);
+        let event_id = js_field!(event => type as String).unwrap();
         if !match event_id.as_str() {
             "pointerdown" => self.pointerdown(MouseData::from_event(event), context.clone()),
             "pointerup" => self.pointerup(MouseData::from_event(event), context.clone()),
