@@ -78,10 +78,10 @@ impl MouseData {
 
 #[derive(Debug, Clone)]
 pub struct KeyData {
-    pub alt: bool,
-    pub shift: bool,
-    pub ctrl: bool,
-    pub meta: bool,
+    pub alt: Option<bool>,
+    pub shift: Option<bool>,
+    pub ctrl: Option<bool>,
+    pub meta: Option<bool>,
     pub key: String,
     pub code: String,
     pub keycode: u8,
@@ -90,10 +90,10 @@ pub struct KeyData {
 impl KeyData {
     fn from_event(event: &JsValue) -> KeyData {
         KeyData {
-            alt: js_field!(event => altKey as bool).unwrap(),
-            shift: js_field!(event => shiftKey as bool).unwrap(),
-            ctrl: js_field!(event => ctrlKey as bool).unwrap(),
-            meta: js_field!(event => metaKey as bool).unwrap(),
+            alt: js_field!(event => altKey as bool),
+            shift: js_field!(event => shiftKey as bool),
+            ctrl: js_field!(event => ctrlKey as bool),
+            meta: js_field!(event => metaKey as bool),
             key: js_field!(event => key as String).unwrap(),
             code: js_field!(event => code as String).unwrap(),
             keycode: js_field!(event => keyCode as u8).unwrap(),
