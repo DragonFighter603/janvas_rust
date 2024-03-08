@@ -13,17 +13,17 @@ macro_rules! log {
 
 #[macro_export]
 macro_rules! js_field {
-    ($object: expr $(?)? $(=> $fields: ident)+ as String) => {
-        js_field!($object $(?)? $(=> $fields)+).as_string().unwrap()
+    ($object: expr $(=> $fields: ident $(?)?)+ as String) => {
+        js_field!($object $(=> $fields $(?)?)+).as_string().unwrap()
     };
 
-    ($object: expr $(?)? $(=> $fields: ident)+ as bool) => {
-        js_field!($object $(?)? $(=> $fields)+).as_f64().unwrap() != 0.0
+    ($object: expr $(=> $fields: ident $(?)?)+ as bool) => {
+        js_field!($object $(=> $fields $(?)?)+).as_f64().unwrap() != 0.0
     };
 
-    ($object: expr $(?)? $(=> $fields: ident)+ as $t: ty) => {
+    ($object: expr $(=> $fields: ident $(?)?)+ as $t: ty) => {
         //$crate::serde_wasm_bindgen::from_value::<$t>(js_field!($object $(=> $fields)+)).unwrap()
-        js_field!($object $(?)? $(=> $fields)+).as_f64().unwrap() as $t
+        js_field!($object  $(=> $fields $(?)?)+).as_f64().unwrap() as $t
     };
 
     ($object: expr => $field: ident $(=> $fields: ident)+) => {
@@ -34,11 +34,11 @@ macro_rules! js_field {
         js_sys::Reflect::get($object, &$crate::wasm_bindgen::JsValue::from_str( stringify!($field) )).unwrap()
     };
     
-    ($object: expr => ? $field: ident $(=> $fields: ident)+) => {
+    ($object: expr => $field: ident ? $(=> $fields: ident)+) => {
         js_field!(js_sys::Reflect::get($object, &$crate::wasm_bindgen::JsValue::from_str( stringify!($field) )).map(|v| v $(=> $fields)+))
     };
 
-    ($object: expr => ? $field: ident) => {
+    ($object: expr => $field: ident ?) => {
         js_sys::Reflect::get($object, &$crate::wasm_bindgen::JsValue::from_str( stringify!($field) ))
     };
 }
