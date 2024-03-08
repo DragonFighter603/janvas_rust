@@ -34,8 +34,8 @@ macro_rules! js_field {
         js_sys::Reflect::get($object, &$crate::wasm_bindgen::JsValue::from_str( stringify!($field) )).unwrap()
     };
     
-    ($object: expr => $field: ident ? $(=> $fields: ident)+) => {
-        js_field!(js_sys::Reflect::get($object, &$crate::wasm_bindgen::JsValue::from_str( stringify!($field) )).map(|v| v $(=> $fields)+))
+    ($object: expr => $field: ident ? $(=> $fields: ident $(?)?)+) => {
+        js_field!(js_sys::Reflect::get($object, &$crate::wasm_bindgen::JsValue::from_str( stringify!($field) )).map(|v| v $(=> $fields $(?)?)+))
     };
 
     ($object: expr => $field: ident ?) => {
@@ -60,11 +60,11 @@ pub struct MouseData {
     pub y: i32,
     pub dx: i32,
     pub dy: i32,
-    pub alt: bool,
-    pub shift: bool,
-    pub ctrl: bool,
-    pub meta: bool,
-    pub primary: bool
+    pub alt: Option<bool>,
+    pub shift: Option<bool>,
+    pub ctrl: Option<bool>,
+    pub meta: Option<bool>,
+    pub primary: Option<bool>
 }
 
 impl MouseData {
